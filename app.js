@@ -1,6 +1,9 @@
 function init() {
     //import data and save to variable data
     d3.json("samples.json").then((importedData) => {
+        test = JSON.stringify(importedData, null, '\t');
+        console.log(test);
+        
         var data = importedData;
         
         //get sample names from json file to populate the dropdown menu 
@@ -22,10 +25,8 @@ function init() {
     });     
 };
 
-
     //event listener for dropdown menu
  d3.select('#selDataset').on("change", getUserInput);
-
 
     //function to get user input when dropdown menu item is selected
 function getUserInput() {
@@ -73,24 +74,29 @@ function buildTable(data) {
 function buildPlot(data) {
 
     //Horizontal Bar Chart
+    var sample_values=data.sample_values;
+    var otu_ids = data.otu_ids;
+    var otu_labels = data.otu_labels;
+    
+
 
     //Get top 10 sample values and sort in descending order 
     var sorted_sample_values=data.sample_values.sort((a,b) => b.sample_values - a.sample_values);
     var sorted_sample_values=sorted_sample_values.slice(0,10).reverse()
     console.log(sorted_sample_values);
 
-    //Get OTU ids and labels for yaxis and text
-    var otu_ids = (data.otu_ids.slice(0,10)).reverse();
-    var otu_id_labels = otu_ids.map(d => "OTU "+ d);
+    //Get sorted OTU ids and labels for yaxis and text
+    var sorted_otu_ids = (data.otu_ids.slice(0,10)).reverse();
+    var sorted_otu_id_labels = sorted_otu_ids.map(d => "OTU "+ d);
     
-    var otu_labels = data.otu_labels.slice(0,10);
+    var sorted_otu_labels = data.otu_labels.slice(0,10);
 
 
     //Horizontal Bar Chart
     var trace = {
         x: sorted_sample_values,
-        y: otu_id_labels,
-        text: otu_labels,
+        y: sorted_otu_id_labels,
+        text: sorted_otu_labels,
         type:'bar',
         orientation: 'h'
     };
@@ -106,16 +112,14 @@ function buildPlot(data) {
     
     Plotly.newPlot("bar", data, layout);
 
-
-
     //Bubble chart
     var trace2 = {
         x: otu_ids,
-        y: sorted_sample_values,
+        y: sample_values,
         text: otu_labels,
         mode: 'markers',
         marker: {
-            size: sorted_sample_values,
+            size: sample_values,
             color: otu_ids,
         },
     };
@@ -131,9 +135,8 @@ function buildPlot(data) {
     };
 
     Plotly.newPlot("bubble", data2, layout2);
-
+  
 };
-
 
 
 init();
